@@ -13,14 +13,6 @@ const { download } = require("./utilities");
 //   console.log(`Listening on port ${port}`)
 // })
 
-// const tweet = async () => {
-//   try {
-//     await twitterClient.v2.tweet("Hello world!");
-//   } catch (e) {
-//     console.log(e)
-//   }
-// }
-
 const tweet = async () => {
   const uri = "https://i.imgur.com/Zl2GLjnh.jpg";
   const directory = "./img";
