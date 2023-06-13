@@ -1,30 +1,27 @@
-// https://www.ryancarmody.dev/blog/creating-a-twitter-bot-with-nodejs-api
-// https://www.youtube.com/@codewithryan4646/videos
-
 require("dotenv").config({ path: __dirname + "/.env" });
 const { twitterClient } = require("./twitterClient.js")
 const CronJob = require("cron").CronJob;
 const { download } = require("./utilities");
-// const express = require('express')
-// const app = express()
-// const port = process.env.PORT || 4000;
-
-// app.listen(port, () => {
-//   console.log(`Listening on port ${port}`)
-// })
+const fs = require("fs");
 
 const tweet = async () => {
-  const uri = "https://i.imgur.com/Zl2GLjnh.jpg";
+  // read the uris.json file and randomly choose a image
+  const uris = JSON.parse(fs.readFileSync("uris.json", "utf8"));
+  const randomIndex = Math.floor(Math.random() * uris.length);
+  const uri = uris[randomIndex];
+
+  // name the image
   const directory = "./img";
-  const filename = "image.png";
+  const filename = uri.substring(uri.lastIndexOf("/") + 1);
   const filepath = `${directory}/${filename}`;
 
+  // download the image from my igmur album
   download(uri, filepath, async function(err){
     try {
       const mediaId = await twitterClient.v1.uploadMedia(filepath);
       console.log(mediaId);
       await twitterClient.v2.tweet({
-        text: "Hello world! This is an image in Ukraine!",
+        text: "Test tweet",
         media: {
           media_ids: [mediaId]
         }
