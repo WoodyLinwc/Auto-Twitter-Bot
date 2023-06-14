@@ -32,13 +32,13 @@ const tweet = async () => {
   });
 };
 
-tweet();
-
-// const cronTweet = new CronJob("0 */12 * * *", async () => {
-//     tweet();
-// });
+// tweet(); 
+// "0 */12 * * *"
+const cronTweet = new CronJob("* * * * *", async () => {
+    tweet();
+});
   
-// cronTweet.start();
+cronTweet.start();
 
 
 
