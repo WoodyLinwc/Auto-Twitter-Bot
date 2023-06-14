@@ -21,7 +21,7 @@ const tweet = async () => {
       const mediaId = await twitterClient.v1.uploadMedia(filepath);
       console.log(mediaId);
       await twitterClient.v2.tweet({
-        text: "Test tweet",
+        text: "#GIDLE #여자아이들",
         media: {
           media_ids: [mediaId]
         }
@@ -33,6 +33,7 @@ const tweet = async () => {
 };
 
 // tweet(); 
+// post once every 8 hours
 const cronTweet = new CronJob("0 */8 * * *", async () => {
     tweet();
 });
