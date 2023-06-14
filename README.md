@@ -1,5 +1,7 @@
 # Auto-Twitter-Bot
 
+## To be completed
+
 ## Twitter Developer Account
 Be sure to have a Twitter developer account ready. [Here](https://developer.twitter.com/en/portal/dashboard)
 
