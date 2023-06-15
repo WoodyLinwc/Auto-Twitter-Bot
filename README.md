@@ -7,7 +7,7 @@
 ![Keys](./note/keys.png) Keep them in a safe place and not reveal to others.
 
 ## Dependencies
-- Check if you have Node.js and npm installed in the terminal
+- Check if you have Node.js and npm installed in your PC
 `node -v` and `npm -v`.
 
 - Download the necessary components
