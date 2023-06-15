@@ -45,7 +45,7 @@ You can download it by typing `sudo npm install -g pm2` in the terminal.
 
 - I use the free Twitter API v2, so I don't have the access of retweet a post, like a post, search a post etc. 
 
-- I use igmur as my a storage to keep all my images online.
+- I use igmur as my storage to keep all my images online.
 
 ## License and Credits
 MIT License. Inspired by the Twitter Bot tutorial from [Ryan Carmody](https://www.ryancarmody.dev/about)
