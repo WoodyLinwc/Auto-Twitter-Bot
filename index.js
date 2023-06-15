@@ -33,8 +33,8 @@ const tweet = async () => {
 };
 
 // tweet(); 
-// post once every 8 hours
-const cronTweet = new CronJob("0 */8 * * *", async () => {
+// post once every 4 hours
+const cronTweet = new CronJob("0 */4 * * *", async () => {
     tweet();
 });
   
