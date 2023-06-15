@@ -42,7 +42,7 @@ You can download it by typing `sudo npm install -g pm2` in the terminal.
 ## Limitations
 - I still have to manually filter the image and add the image direct link to a JSON file.
 
-- I use igmur to keep all my images online.
+- I use igmur as my a storage to keep all my images online.
 
 ## License and Credits
 MIT License. Inspired by the Twitter Bot tutorial from [Ryan Carmody](https://www.ryancarmody.dev/about)
