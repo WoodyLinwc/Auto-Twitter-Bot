@@ -13,6 +13,7 @@ This is a bot that will automatically post a (G)I-DLE picture once every 4 hours
 
 - Download the necessary components
 ```
+npm init -y
 npm install twitter-api-v2
 npm install dotenv
 npm install cron
