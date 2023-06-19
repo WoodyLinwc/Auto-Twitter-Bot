@@ -26,6 +26,10 @@ const tweet = async () => {
           media_ids: [mediaId]
         }
       });
+
+      // write the selected URI to a separate file for record-keeping
+      fs.appendFileSync("tweetedRecord.txt", `${uri}\n`);
+
     } catch (e) {
       console.error(e);
     }
