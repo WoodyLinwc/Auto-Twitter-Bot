@@ -14,7 +14,9 @@
     "dotenv": "^16.1.4",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
+    "instagram-private-api": "^1.45.3",
     "request": "^2.88.2",
+    "request-promise": "^4.2.6",
     "twitter-api-v2": "^1.15.0"
   }
 }
