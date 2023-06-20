@@ -25,7 +25,9 @@ const tweet = async () => {
   // download the image from my igmur album
   download(uri, filepath, async function(err){
     try {
-      const mediaId = await twitterClient.v1.uploadMedia(filepath);
+      const mediaId = await twitterClient.v1.uploadMedia(filepath, {
+        mimeType: "image/jpeg"
+      });
       console.log(mediaId);
       await twitterClient.v2.tweet({
         text: "#GIDLE #여자아이들",
@@ -64,8 +66,8 @@ const postToInsta = async () => {
   });
 };
 
-// tweet();
-postToInsta();
+tweet();
+// postToInsta();
 
 // post once every 4 hours
 // const cronPost = new CronJob("0 */4 * * *", async () => {
