@@ -56,7 +56,7 @@ You can download it by typing `sudo npm install -g pm2` in the terminal.
 
 - I directly used one Github repository to store my images.
 
-- I was also trying to implement a Instagram Bot that will do the same thing. However, I could only do it locally, not on the remote server :(
+- I was also trying to implement a **Instagram Bot** that will do the same thing. However, I could only do it locally, not on the remote server :(
 There were some errors using the `sharp` module.
 
 - Due to the small capacity of the remote server, I cannot a build system like Docker to ensure consistency between environments.
