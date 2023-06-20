@@ -64,6 +64,7 @@ You can download it by typing `sudo npm install -g pm2` in the terminal.
 - I was also trying to implement a **Instagram Bot** that will do the same thing. However, I could only do it locally, not on the remote server :(
 There were some errors using the `sharp` module in ubuntu.
     - The Instagram API I'm using can't handle png images. This is the reason I used `sharp`. You surely can find a better solution. Tell me if you find one🌚
+    - Although I've changed to all JPG images, it's still the same.
 
 - Due to the small capacity of the remote server, I cannot a build system like Docker to ensure consistency between environments.
 
