@@ -13,7 +13,7 @@ const { get } = require('request-promise');
 
 const tweet = async () => {
   // read the uris.json file and randomly choose a image
-  const uris = JSON.parse(fs.readFileSync("uris.json", "utf8"));
+  const uris = JSON.parse(fs.readFileSync("uris2.json", "utf8"));
   const randomIndex = Math.floor(Math.random() * uris.length);
   const uri = uris[randomIndex];
 
