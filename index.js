@@ -45,7 +45,6 @@ const tweet = async () => {
   });
 };
 
-
 const postToInsta = async () => {
   const ig = new IgApiClient();
   const sharp = require('sharp');
