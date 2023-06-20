@@ -47,7 +47,7 @@ You can download it by typing `sudo npm install -g pm2` in the terminal.
 
 - I used the free Twitter API v2, so I don't have the access of retweet a post, like a post, search a post etc. 
 
-- I used the `tweetedRecord.txt` file to keep track of the images that have been tweeted.
+- I used the `postRecord.txt` file to keep track of the images that have been tweeted.
 
 - ~~I used igmur as my storage to keep all my images online.~~ 
 
