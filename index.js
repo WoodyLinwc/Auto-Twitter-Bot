@@ -65,12 +65,12 @@ const postToInsta = async () => {
 };
 
 // tweet();
-postToInsta();
+// postToInsta();
 
 // post once every 4 hours
-// const cronPost = new CronJob("0 */4 * * *", async () => {
-//     tweet();
-// });
+const cronPost = new CronJob("0 */4 * * *", async () => {
+    tweet();
+});
   
 // cronPost.start();
 
