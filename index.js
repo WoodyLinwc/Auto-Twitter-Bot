@@ -78,7 +78,7 @@ const cronPost = new CronJob("0 */4 * * *", async () => {
     tweet();
     postToInsta();
 });
-// cronPost.start();
+cronPost.start();
 
 
 
