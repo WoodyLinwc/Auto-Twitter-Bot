@@ -45,11 +45,19 @@ You can download it by typing `sudo npm install -g pm2` in the terminal.
 ## Limitations and Others
 - I still have to manually filter the image and add the image direct link to a JSON file.
 
-- I use the free Twitter API v2, so I don't have the access of retweet a post, like a post, search a post etc. 
+- I used the free Twitter API v2, so I don't have the access of retweet a post, like a post, search a post etc. 
 
-- I use the `tweetedRecord.txt` file to keep track of the images that have been tweeted.
+- I used the `tweetedRecord.txt` file to keep track of the images that have been tweeted.
 
-- I use igmur as my storage to keep all my images online.
+- ~~I used igmur as my storage to keep all my images online.~~ 
+
+- I directly used one Github repository to store my images.
+
+- I was also trying to implement a Instagram Bot that will do the same thing. However, I could only do it locally, not on the remote server :(
+There were some errors using the `sharp` module.
+
+- Due to the small capacity of the remote server, I cannot a build system like Docker to ensure consistency between environments.
+
 
 ## License and Credits
 MIT License. Inspired by the Twitter Bot tutorial from [Ryan Carmody](https://www.ryancarmody.dev/about)
