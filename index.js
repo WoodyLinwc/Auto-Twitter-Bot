@@ -76,7 +76,7 @@ const postToInsta = async () => {
 // post once every 4 hours
 const cronPost = new CronJob("0 */4 * * *", async () => {
     tweet();
-    postToInsta();
+    // postToInsta();
 });
 cronPost.start();
 
