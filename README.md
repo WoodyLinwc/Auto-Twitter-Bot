@@ -19,6 +19,7 @@ npm install dotenv
 npm install cron
 npm install fs
 npm install request
+npm install sharp
 ```
 
 - Create a `.env` file and replace your values you created on the Twitter developer platform. Note that APP_ID is the first few numbers of ACCESS_TOKEN

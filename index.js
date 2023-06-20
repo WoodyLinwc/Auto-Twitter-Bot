@@ -13,7 +13,7 @@ const { get } = require('request-promise');
 
 const tweet = async () => {
   // read the uris.json file and randomly choose a image
-  const uris = JSON.parse(fs.readFileSync("uris2.json", "utf8"));
+  const uris = JSON.parse(fs.readFileSync("uris.json", "utf8"));
   const randomIndex = Math.floor(Math.random() * uris.length);
   const uri = uris[randomIndex];
 
@@ -47,11 +47,12 @@ const tweet = async () => {
 
 const postToInsta = async () => {
   const ig = new IgApiClient();
+  const sharp = require('sharp');
   ig.state.generateDevice(process.env.IG_USERNAME);
   await ig.account.login(process.env.IG_USERNAME, process.env.IG_PASSWORD);
-
+  
   // read the uris.json file and randomly choose a image
-  const uris = JSON.parse(fs.readFileSync("uris2.json", "utf8"));
+  const uris = JSON.parse(fs.readFileSync("uris.json", "utf8"));
   const randomIndex = Math.floor(Math.random() * uris.length);
   const uri = uris[randomIndex];
 
@@ -60,19 +61,23 @@ const postToInsta = async () => {
       encoding: null, 
   });
 
+  // convert the image to acceptable format
+  const jpegBuffer = await sharp(imageBuffer).jpeg().toBuffer();
+
   await ig.publish.photo({
-      file: imageBuffer,
+      file: jpegBuffer,
       caption: "#GIDLE #여자아이들",
   });
 };
 
-tweet();
+// tweet();
 // postToInsta();
 
 // post once every 4 hours
-// const cronPost = new CronJob("0 */4 * * *", async () => {
-//     tweet();
-// });
+const cronPost = new CronJob("0 */4 * * *", async () => {
+    tweet();
+    postToInsta();
+});
 // cronPost.start();
 
 
