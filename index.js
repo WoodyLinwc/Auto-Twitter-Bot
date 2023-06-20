@@ -1,10 +1,11 @@
 require("dotenv").config({ path: __dirname + "/.env" });
+// require("dotenv").config();
 const CronJob = require("cron").CronJob;
+const fs = require("fs");
 
 // for Twitter
 const { twitterClient } = require("./twitterClient.js")
 const { download } = require("./utilities");
-const fs = require("fs");
 
 // for Instagram
 const { IgApiClient } = require('instagram-private-api');
@@ -40,17 +41,17 @@ const tweet = async () => {
       console.error(e);
     }
   });
-}
+};
 
 const postToInsta = async () => {
   const ig = new IgApiClient();
   ig.state.generateDevice(process.env.IG_USERNAME);
   await ig.account.login(process.env.IG_USERNAME, process.env.IG_PASSWORD);
 
-    // read the uris.json file and randomly choose a image
-    const uris = JSON.parse(fs.readFileSync("uris.json", "utf8"));
-    const randomIndex = Math.floor(Math.random() * uris.length);
-    const uri = uris[randomIndex];
+  // read the uris.json file and randomly choose a image
+  const uris = JSON.parse(fs.readFileSync("uris2.json", "utf8"));
+  const randomIndex = Math.floor(Math.random() * uris.length);
+  const uri = uris[randomIndex];
 
   const imageBuffer = await get({
       url: uri,
@@ -61,16 +62,17 @@ const postToInsta = async () => {
       file: imageBuffer,
       caption: "#GIDLE #여자아이들",
   });
-}
+};
 
 // tweet();
-// postToInsta();
+postToInsta();
+
 // post once every 4 hours
-const cronPost = new CronJob("0 */4 * * *", async () => {
-    tweet();
-});
+// const cronPost = new CronJob("0 */4 * * *", async () => {
+//     tweet();
+// });
   
-cronPost.start();
+// cronPost.start();
 
 
 
