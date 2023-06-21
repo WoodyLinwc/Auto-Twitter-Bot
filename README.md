@@ -73,7 +73,7 @@ There were some errors using the `sharp` module in ubuntu.
 ubuntu@ip-172-31-83-179:~$ cat twitter.sh 
 #!/bin/sh
 
-cp Auto-Twitter-Bot/postRecord.txt .
+cat Auto-Twitter-Bot/postRecord.txt >> postRecord.txt
 cd Auto-Twitter-Bot
 pm2 stop 0
 git pull
