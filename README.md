@@ -1,5 +1,6 @@
 # Auto-Twitter-Bot
 This is a bot that will automatically post a (G)I-DLE picture once every 4 hours. [@GIDLE_BOT_DAILY](https://twitter.com/GIDLE_BOT_DAILY)
+(UPDATE: Instagram Bot, [@gidle_bot_daily](https://www.instagram.com/gidle_bot_daily/))
 
 ## Twitter Developer Account
 - Be sure to have a Twitter developer account ready. [Here](https://developer.twitter.com/en/portal/dashboard)
@@ -36,6 +37,7 @@ APP_ID = "12345"
 ```
 npm install instagram-private-api
 npm install request-promise
+npm install jimp
 ```
 - Be sure also include the Instagram API key in `.env` file.
 ```
@@ -61,10 +63,10 @@ You can download it by typing `sudo npm install -g pm2` in the terminal.
 
 - I directly used one Github repository to store my images.
 
-- I was also trying to implement a **Instagram Bot** that will do the same thing. However, I could only do it locally, not on the remote server :(
-There were some errors using the `sharp` module in ubuntu.
-    - The Instagram API I'm using can't handle png images. This is the reason I used `sharp`. You surely can find a better solution. Tell me if you find one🌚
-    - Although I've changed to all JPG images, it's still the same.
+- ~~I was also trying to implement a **Instagram Bot** that will do the same thing. However, I could only do it locally, not on the remote server :(
+There were some errors using the `sharp` module in ubuntu.~~
+    - ~~The Instagram API I'm using can't handle png images. This is the reason I used `sharp`. You surely can find a better solution. Tell me if you find one🌚~~
+- I installed jimp instead, and it worked!
 
 - Due to the small capacity of the remote server, I cannot a build system like Docker to ensure consistency between environments.
 
