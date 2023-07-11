@@ -22,7 +22,7 @@ const tweet = async () => {
   const filename = uri.substring(uri.lastIndexOf("/") + 1);
   const filepath = `${directory}/${filename}`;
 
-  // download the image from my igmur album
+  // download the image from my GitHub album
   download(uri, filepath, async function(err){
     try {
       const mediaId = await twitterClient.v1.uploadMedia(filepath, {
