@@ -16,10 +16,13 @@ const tweet = async () => {
   const uris = JSON.parse(fs.readFileSync("uris.json", "utf8"));
   const randomIndex = Math.floor(Math.random() * uris.length);
   const uri = uris[randomIndex];
+  // const uri = "https://example.com/images/image_210.JPG";
 
   // name the image
   const directory = "./img";
   const filename = uri.substring(uri.lastIndexOf("/") + 1);
+  // console.log(filename);
+  // Output: "image_210.JPG"
   const filepath = `${directory}/${filename}`;
 
   // download the image from my GitHub album
