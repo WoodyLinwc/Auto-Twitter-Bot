@@ -50,6 +50,7 @@ const tweet = async () => {
   });
 };
 
+// check the complete code here https://github.com/WoodyLinwc/Auto-Instagram-Bot
 const postToInsta = async () => {
   const ig = new IgApiClient();
   const sharp = require('sharp');
