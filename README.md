@@ -1,5 +1,5 @@
 # Auto-Twitter-Bot
-This is a bot that will automatically post a (G)I-DLE picture once every 4 hours. [@GIDLE_BOT_DAILY](https://twitter.com/GIDLE_BOT_DAILY)
+This is a bot that will automatically post a (G)I-DLE picture once every 6 hours. [@GIDLE_BOT_DAILY](https://twitter.com/GIDLE_BOT_DAILY)
 (UPDATE: Instagram Bot, [@gidle_bot_daily](https://www.instagram.com/gidle_bot_daily/))
 
 ## Twitter Developer Account
