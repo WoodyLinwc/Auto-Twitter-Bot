@@ -84,6 +84,5 @@ git pull
 pm2 start index.js
 ```
 
-
 ## License and Credits
 MIT License. Inspired by the Twitter Bot tutorial from [Ryan Carmody](https://www.ryancarmody.dev/about)
