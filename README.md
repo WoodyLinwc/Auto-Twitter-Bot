@@ -3,6 +3,7 @@ This is a bot that will automatically post a (G)I-DLE picture once every 6 hours
 
 
 ![GIDLE](./img/gidle.png)
+![GIDLE](./img/gidle2.png)
 
 ## Twitter Developer Account
 - Be sure to have a Twitter developer account ready. [Here](https://developer.twitter.com/en/portal/dashboard)
