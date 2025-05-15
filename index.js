@@ -33,7 +33,7 @@ const tweet = async () => {
       });
       console.log(mediaId);
       await twitterClient.v2.tweet({
-        text: "#GIDLE #여자아이들",
+        text: "#GIDLE #IDLE #여자아이들 #아이들 #女娃",
         media: {
           media_ids: [mediaId],
           // get the id @G_I_DLE, https://tweeterid.com/
