@@ -15,12 +15,12 @@ const { get } = require("request-promise");
 const getImageCount = () => {
     const random = Math.random() * 100; // Generate random number 0-100
 
-    if (random < 60) {
-        return 1; // 60% chance
-    } else if (random < 90) {
-        return 2; // 30% chance (60-90)
+    if (random < 50) {
+        return 1; // 50% chance
+    } else if (random < 80) {
+        return 2; // 30% chance (50-80)
     } else {
-        return 4; // 10% chance (90-100)
+        return 4; // 20% chance (80-100)
     }
 };
 
