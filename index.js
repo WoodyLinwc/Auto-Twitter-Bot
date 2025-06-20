@@ -19,10 +19,10 @@ const getImageCount = () => {
         return 1; // 50% chance
     } else if (random < 75) {
         return 2; // 25% chance (50-75)
-    } else if (random < 90) {
-        return 3; // 15% chance (75-90)
+    } else if (random < 93) {
+        return 3; // 18% chance (75-93)
     } else {
-        return 4; // 10% chance (80-100)
+        return 4; // 7% chance (93-100)
     }
 };
 
