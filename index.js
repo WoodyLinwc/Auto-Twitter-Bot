@@ -1,5 +1,4 @@
 require("dotenv").config({ path: __dirname + "/.env" });
-// require("dotenv").config();
 const CronJob = require("cron").CronJob;
 const fs = require("fs");
 
@@ -11,20 +10,98 @@ const { download } = require("./utilities");
 const { IgApiClient } = require("instagram-private-api");
 const { get } = require("request-promise");
 
-// Function to determine number of images to post based on probability
-const getImageCount = () => {
-    const random = Math.random() * 100; // Generate random number 0-100
+// Track posting history for 4-image cooldown
+const COOLDOWN_FILE = "posting_history.json";
+const COOLDOWN_POSTS = 5; // Number of posts after 4-image post where 4 images are blocked
 
-    if (random < 50) {
-        return 1; // 50% chance
-    } else if (random < 75) {
-        return 2; // 25% chance (50-75)
-    } else if (random < 93) {
-        return 3; // 18% chance (75-93)
+// Load posting history
+function loadPostingHistory() {
+    try {
+        if (fs.existsSync(COOLDOWN_FILE)) {
+            const data = fs.readFileSync(COOLDOWN_FILE, "utf8");
+            return JSON.parse(data);
+        }
+    } catch (error) {
+        console.error("Error loading posting history:", error);
+    }
+    return {
+        lastFourImagePost: null,
+        postsSinceFourImages: 0,
+        totalPosts: 0,
+    };
+}
+
+// Save posting history
+function savePostingHistory(history) {
+    try {
+        fs.writeFileSync(COOLDOWN_FILE, JSON.stringify(history, null, 2));
+    } catch (error) {
+        console.error("Error saving posting history:", error);
+    }
+}
+
+// Enhanced function to determine number of images with cooldown logic
+const getImageCount = () => {
+    const history = loadPostingHistory();
+
+    // Check if we're in cooldown period (next 5 posts after a 4-image post)
+    const inCooldown =
+        history.lastFourImagePost !== null &&
+        history.postsSinceFourImages < COOLDOWN_POSTS;
+
+    if (inCooldown) {
+        console.log(
+            `In cooldown period: ${
+                history.postsSinceFourImages + 1
+            }/${COOLDOWN_POSTS} posts since last 4-image post`
+        );
+        // During cooldown, only allow 1-3 images
+        const random = Math.random() * 100;
+        if (random < 60) {
+            return 1; // 60% chance
+        } else if (random < 85) {
+            return 2; // 25% chance (60-85)
+        } else {
+            return 3; // 15% chance (85-100)
+        }
     } else {
-        return 4; // 7% chance (93-100)
+        // Normal probability distribution including 4 images
+        const random = Math.random() * 100;
+        if (random < 50) {
+            return 1; // 50% chance
+        } else if (random < 75) {
+            return 2; // 25% chance (50-75)
+        } else if (random < 93) {
+            return 3; // 18% chance (75-93)
+        } else {
+            return 4; // 7% chance (93-100)
+        }
     }
 };
+
+// Update posting history after each post
+function updatePostingHistory(imageCount) {
+    const history = loadPostingHistory();
+
+    if (imageCount === 4) {
+        // Reset cooldown when posting 4 images
+        history.lastFourImagePost = new Date().toISOString();
+        history.postsSinceFourImages = 0;
+        console.log("Posted 4 images - starting cooldown period");
+    } else if (history.lastFourImagePost !== null) {
+        // Increment posts since last 4-image post
+        history.postsSinceFourImages++;
+
+        // Check if cooldown period is over
+        if (history.postsSinceFourImages >= COOLDOWN_POSTS) {
+            console.log("Cooldown period completed - 4 images allowed again");
+            // Keep the history but mark cooldown as complete
+        }
+    }
+
+    history.totalPosts++;
+    savePostingHistory(history);
+}
 
 // Function to get multiple unique random images
 const getRandomImages = (count) => {
@@ -75,50 +152,46 @@ const downloadImages = async (images) => {
     return Promise.all(downloadPromises);
 };
 
+// Original single image tweet function (keeping for reference)
 const tweet = async () => {
-    // read the uris.json file and randomly choose a image
     const uris = JSON.parse(fs.readFileSync("uris.json", "utf8"));
     const randomIndex = Math.floor(Math.random() * uris.length);
     const uri = uris[randomIndex];
-    // const uri = "https://example.com/images/image_210.JPG";
 
-    // name the image
     const directory = "./img";
     const filename = uri.substring(uri.lastIndexOf("/") + 1);
-    // console.log(filename);
-    // Output: "image_210.JPG"
     const filepath = `${directory}/${filename}`;
 
-    // download the image from my GitHub album
     download(uri, filepath, async function (err) {
         try {
             const mediaId = await twitterClient.v1.uploadMedia(filepath, {
                 mimeType: "image/jpeg",
             });
-            // console.log(mediaId);
+
             await twitterClient.v2.tweet({
                 text: "#GIDLE #IDLE #여자아이들 #아이들 #女娃",
                 media: {
                     media_ids: [mediaId],
-                    // get the id @G_I_DLE, https://tweeterid.com/
                     tagged_user_ids: ["967000437797761024"],
                 },
             });
 
-            // write the selected URI to a separate file for record-keeping
             fs.appendFileSync("postRecord.txt", `${uri}\n`);
+
+            // Update history for single image post
+            updatePostingHistory(1);
         } catch (e) {
             console.error(e);
         }
     });
 };
 
-// New function for multi-image posting with probability
+// Enhanced multi-image posting function with cooldown tracking
 const tweetMultiple = async () => {
     try {
-        // Determine how many images to post
+        // Determine how many images to post (with cooldown logic)
         const imageCount = getImageCount();
-        // console.log(`Posting ${imageCount} image(s)`);
+        console.log(`Posting ${imageCount} image(s)`);
 
         // Get random images
         const selectedImages = getRandomImages(imageCount);
@@ -133,7 +206,6 @@ const tweetMultiple = async () => {
                 mimeType: "image/jpeg",
             });
             mediaIds.push(mediaId);
-            // console.log(`Uploaded ${image.filepath}, Media ID: ${mediaId}`);
         }
 
         // Create the tweet with all media
@@ -141,7 +213,6 @@ const tweetMultiple = async () => {
             text: "#GIDLE #IDLE #여자아이들 #아이들 #女娃",
             media: {
                 media_ids: mediaIds,
-                // get the id @G_I_DLE, https://tweeterid.com/
                 tagged_user_ids: ["967000437797761024"],
             },
         });
@@ -151,20 +222,22 @@ const tweetMultiple = async () => {
             downloadedImages.map((img) => img.uri).join("\n") + "\n";
         fs.appendFileSync("postRecord.txt", recordEntries);
 
-        // console.log(`Successfully posted ${imageCount} image(s)`);
+        // Update posting history
+        updatePostingHistory(imageCount);
+
+        console.log(`Successfully posted ${imageCount} image(s)`);
     } catch (e) {
         console.error("Error posting tweet:", e);
     }
 };
 
-// check the complete code here https://github.com/WoodyLinwc/Auto-Instagram-Bot
+// Instagram posting function (unchanged)
 const postToInsta = async () => {
     const ig = new IgApiClient();
     const sharp = require("sharp");
     ig.state.generateDevice(process.env.IG_USERNAME);
     await ig.account.login(process.env.IG_USERNAME, process.env.IG_PASSWORD);
 
-    // read the uris.json file and randomly choose a image
     const uris = JSON.parse(fs.readFileSync("uris.json", "utf8"));
     const randomIndex = Math.floor(Math.random() * uris.length);
     const uri = uris[randomIndex];
@@ -174,7 +247,6 @@ const postToInsta = async () => {
         encoding: null,
     });
 
-    // convert the image to acceptable format
     const jpegBuffer = await sharp(imageBuffer).jpeg().toBuffer();
 
     await ig.publish.photo({
@@ -183,10 +255,39 @@ const postToInsta = async () => {
     });
 };
 
-// tweet();
-// postToInsta();
+// Function to check current cooldown status (utility function)
+const checkCooldownStatus = () => {
+    const history = loadPostingHistory();
 
-// post once every 6 hours
+    if (history.lastFourImagePost === null) {
+        console.log("No 4-image posts recorded yet");
+        return;
+    }
+
+    const inCooldown = history.postsSinceFourImages < COOLDOWN_POSTS;
+
+    if (inCooldown) {
+        console.log(
+            `Currently in cooldown: ${history.postsSinceFourImages}/${COOLDOWN_POSTS} posts since last 4-image post`
+        );
+        console.log(
+            `${
+                COOLDOWN_POSTS - history.postsSinceFourImages
+            } more posts until 4 images allowed again`
+        );
+    } else {
+        console.log("Not in cooldown - 4 images allowed");
+    }
+
+    console.log(`Total posts: ${history.totalPosts}`);
+    console.log(`Last 4-image post: ${history.lastFourImagePost}`);
+};
+
+// Uncomment to test functions
+// checkCooldownStatus();
+// tweetMultiple();
+
+// Post once every 6 hours
 const cronPost = new CronJob("0 */6 * * *", async () => {
     tweetMultiple();
     // postToInsta();
