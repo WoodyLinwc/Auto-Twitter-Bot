@@ -239,13 +239,32 @@ const tweetMultiple = async () => {
     const imageCount = getImageCount();
     console.log(`Posting ${imageCount} image(s)`);
 
-    // Get random images (only from unposted images)
-    const selectedImages = getRandomImages(imageCount);
+    // Special case: if 1 image selected, post twice (2 separate tweets)
+    if (imageCount === 1) {
+      console.log("1 image selected - will create 2 separate tweets");
 
-    // Download all images
+      // First tweet
+      await postSingleTweet();
+
+      // Small delay between tweets (optional, to avoid rate limits)
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second delay
+
+      // Second tweet
+      await postSingleTweet();
+
+      console.log("Successfully posted 2 separate single-image tweets");
+
+      // Update posting history (count as 2 posts of 1 image each)
+      updatePostingHistory(1);
+      updatePostingHistory(1);
+
+      return;
+    }
+
+    // Original logic for 2-4 images (single tweet with multiple images)
+    const selectedImages = getRandomImages(imageCount);
     const downloadedImages = await downloadImages(selectedImages);
 
-    // Upload all images to Twitter and get media IDs
     const mediaIds = [];
     for (const image of downloadedImages) {
       const mediaId = await twitterClient.v1.uploadMedia(image.filepath, {
@@ -254,7 +273,6 @@ const tweetMultiple = async () => {
       mediaIds.push(mediaId);
     }
 
-    // Create the tweet with all media
     await twitterClient.v2.tweet({
       text: "#GIDLE #IDLE #여자아이들 #아이들 #女娃",
       media: {
@@ -263,21 +281,42 @@ const tweetMultiple = async () => {
       },
     });
 
-    // Record all posted URIs to file
     const recordEntries =
       downloadedImages.map((img) => img.uri).join("\n") + "\n";
     fs.appendFileSync(POST_RECORD_FILE, recordEntries);
 
-    // Update in-memory set of posted URIs
     downloadedImages.forEach((img) => postedURIs.add(img.uri));
-
-    // Update posting history
     updatePostingHistory(imageCount);
 
     console.log(`Successfully posted ${imageCount} image(s)`);
   } catch (e) {
     console.error("Error posting tweet:", e);
   }
+};
+
+// Helper function to post a single tweet
+const postSingleTweet = async () => {
+  const selectedImages = getRandomImages(1);
+  const downloadedImages = await downloadImages(selectedImages);
+
+  const mediaId = await twitterClient.v1.uploadMedia(
+    downloadedImages[0].filepath,
+    {
+      mimeType: "image/jpeg",
+    }
+  );
+
+  await twitterClient.v2.tweet({
+    text: "#GIDLE #IDLE #여자아이들 #아이들 #女娃",
+    media: {
+      media_ids: [mediaId],
+      tagged_user_ids: ["967000437797761024"],
+    },
+  });
+
+  // Record posted URI
+  fs.appendFileSync(POST_RECORD_FILE, `${downloadedImages[0].uri}\n`);
+  postedURIs.add(downloadedImages[0].uri);
 };
 
 // Instagram posting function (unchanged)
