@@ -103,12 +103,12 @@ const getImageCount = () => {
     );
     // During cooldown, only allow 1-3 images
     const random = Math.random() * 100;
-    if (random < 60) {
-      return 1; // 60% chance
-    } else if (random < 85) {
-      return 2; // 25% chance (60-85)
+    if (random < 70) {
+      return 1; // 70% chance
+    } else if (random < 90) {
+      return 2; // 20% chance (70-90)
     } else {
-      return 3; // 15% chance (85-100)
+      return 3; // 10% chance (90-100)
     }
   } else {
     // Normal probability distribution including 4 images
