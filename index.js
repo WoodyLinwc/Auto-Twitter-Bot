@@ -214,7 +214,7 @@ const tweet = async () => {
       });
 
       await twitterClient.v2.tweet({
-        text: "#GIDLE #IDLE #여자아이들 #아이들 #女娃",
+        text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃",
         media: {
           media_ids: [mediaId],
           tagged_user_ids: ["967000437797761024"],
@@ -274,7 +274,7 @@ const tweetMultiple = async () => {
     }
 
     await twitterClient.v2.tweet({
-      text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 ",
+      text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃",
       media: {
         media_ids: mediaIds,
         tagged_user_ids: ["967000437797761024"],
@@ -307,7 +307,7 @@ const postSingleTweet = async () => {
   );
 
   await twitterClient.v2.tweet({
-    text: "#GIDLE #IDLE #여자아이들 #아이들 #女娃",
+    text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃",
     media: {
       media_ids: [mediaId],
       tagged_user_ids: ["967000437797761024"],
