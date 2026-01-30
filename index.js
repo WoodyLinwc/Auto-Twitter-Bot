@@ -77,7 +77,7 @@ function getAvailableURIs() {
     // Add a separator to the post record
     fs.appendFileSync(
       POST_RECORD_FILE,
-      "\n----------------CYCLE COMPLETE----------------\n"
+      "\n----------------CYCLE COMPLETE----------------\n",
     );
     return allURIs;
   }
@@ -99,28 +99,28 @@ const getImageCount = () => {
     console.log(
       `In cooldown period: ${
         history.postsSinceFourImages + 1
-      }/${COOLDOWN_POSTS} posts since last 4-image post`
+      }/${COOLDOWN_POSTS} posts since last 4-image post`,
     );
     // During cooldown, only allow 1-3 images
     const random = Math.random() * 100;
-    if (random < 70) {
-      return 1; // 70% chance
+    if (random < 75) {
+      return 1; // 75% chance
     } else if (random < 90) {
-      return 2; // 20% chance (70-90)
+      return 2; // 15% chance (80-90)
     } else {
       return 3; // 10% chance (90-100)
     }
   } else {
     // Normal probability distribution including 4 images
     const random = Math.random() * 100;
-    if (random < 50) {
-      return 1; // 50% chance
-    } else if (random < 75) {
-      return 2; // 25% chance (50-75)
-    } else if (random < 93) {
-      return 3; // 18% chance (75-93)
+    if (random < 65) {
+      return 1; // 65% chance
+    } else if (random < 85) {
+      return 2; // 20% chance (65-85)
+    } else if (random < 95) {
+      return 3; // 10% chance (85-95)
     } else {
-      return 4; // 7% chance (93-100)
+      return 4; // 5% chance (95-100)
     }
   }
 };
@@ -214,7 +214,7 @@ const tweet = async () => {
       });
 
       await twitterClient.v2.tweet({
-        text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃",
+        text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop",
         media: {
           media_ids: [mediaId],
           tagged_user_ids: ["967000437797761024"],
@@ -274,7 +274,7 @@ const tweetMultiple = async () => {
     }
 
     await twitterClient.v2.tweet({
-      text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃",
+      text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop",
       media: {
         media_ids: mediaIds,
         tagged_user_ids: ["967000437797761024"],
@@ -303,11 +303,11 @@ const postSingleTweet = async () => {
     downloadedImages[0].filepath,
     {
       mimeType: "image/jpeg",
-    }
+    },
   );
 
   await twitterClient.v2.tweet({
-    text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃",
+    text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop",
     media: {
       media_ids: [mediaId],
       tagged_user_ids: ["967000437797761024"],
@@ -356,12 +356,12 @@ const checkCooldownStatus = () => {
 
   if (inCooldown) {
     console.log(
-      `Currently in cooldown: ${history.postsSinceFourImages}/${COOLDOWN_POSTS} posts since last 4-image post`
+      `Currently in cooldown: ${history.postsSinceFourImages}/${COOLDOWN_POSTS} posts since last 4-image post`,
     );
     console.log(
       `${
         COOLDOWN_POSTS - history.postsSinceFourImages
-      } more posts until 4 images allowed again`
+      } more posts until 4 images allowed again`,
     );
   } else {
     console.log("Not in cooldown - 4 images allowed");
