@@ -101,26 +101,26 @@ const getImageCount = () => {
         history.postsSinceFourImages + 1
       }/${COOLDOWN_POSTS} posts since last 4-image post`,
     );
-    // During cooldown, only allow 1-3 images
+    // During cooldown, only allow modes 1-3
     const random = Math.random() * 100;
     if (random < 75) {
-      return 1; // 75% chance
+      return 1; // 75% → 3 separate single-image tweets
     } else if (random < 90) {
-      return 2; // 15% chance (80-90)
+      return 2; // 15% → 2 separate 2-image tweets
     } else {
-      return 3; // 10% chance (90-100)
+      return 3; // 10% → 1 tweet with 3 images
     }
   } else {
-    // Normal probability distribution including 4 images
+    // Normal probability distribution
     const random = Math.random() * 100;
     if (random < 65) {
-      return 1; // 65% chance
+      return 1; // 65% → 3 separate single-image tweets
     } else if (random < 85) {
-      return 2; // 20% chance (65-85)
+      return 2; // 20% → 2 separate 2-image tweets
     } else if (random < 95) {
-      return 3; // 10% chance (85-95)
+      return 3; // 10% → 1 tweet with 3 images
     } else {
-      return 4; // 5% chance (95-100)
+      return 4; //  5% → 1 tweet with 4 images
     }
   }
 };
@@ -197,7 +197,87 @@ const downloadImages = async (images) => {
   return Promise.all(downloadPromises);
 };
 
-// Original single image tweet function (keeping for reference)
+// Helper: post a single tweet with N images in one tweet
+const postMultiImageTweet = async (count) => {
+  const selectedImages = getRandomImages(count);
+  const downloadedImages = await downloadImages(selectedImages);
+
+  const mediaIds = [];
+  for (const image of downloadedImages) {
+    const mediaId = await twitterClient.v1.uploadMedia(image.filepath, {
+      mimeType: "image/jpeg",
+    });
+    mediaIds.push(mediaId);
+  }
+
+  await twitterClient.v2.tweet({
+    text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop",
+    media: {
+      media_ids: mediaIds,
+      tagged_user_ids: ["967000437797761024"],
+    },
+  });
+
+  const recordEntries =
+    downloadedImages.map((img) => img.uri).join("\n") + "\n";
+  fs.appendFileSync(POST_RECORD_FILE, recordEntries);
+  downloadedImages.forEach((img) => postedURIs.add(img.uri));
+};
+
+// Helper: post a single tweet with 1 image
+const postSingleTweet = async () => {
+  await postMultiImageTweet(1);
+};
+
+// Enhanced multi-image posting function with cooldown tracking
+//
+// Mode 1 (65%): 3 separate single-image tweets
+// Mode 2 (20%): 2 separate tweets with 2 images each
+// Mode 3 (10%): 1 tweet with 3 images
+// Mode 4 ( 5%): 1 tweet with 4 images
+const tweetMultiple = async () => {
+  try {
+    const imageCount = getImageCount();
+
+    if (imageCount === 1) {
+      console.log("Mode 1 - posting 3 separate single-image tweets");
+
+      await postSingleTweet();
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await postSingleTweet();
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await postSingleTweet();
+
+      updatePostingHistory(1);
+      updatePostingHistory(1);
+      updatePostingHistory(1);
+      console.log("Successfully posted 3 single-image tweets");
+    } else if (imageCount === 2) {
+      console.log("Mode 2 - posting 2 separate 2-image tweets");
+
+      await postMultiImageTweet(2);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await postMultiImageTweet(2);
+
+      updatePostingHistory(2);
+      updatePostingHistory(2);
+      console.log("Successfully posted 2 tweets with 2 images each");
+    } else {
+      // Mode 3 or 4: single tweet with 3 or 4 images
+      console.log(
+        `Mode ${imageCount} - posting 1 tweet with ${imageCount} images`,
+      );
+
+      await postMultiImageTweet(imageCount);
+      updatePostingHistory(imageCount);
+      console.log(`Successfully posted 1 tweet with ${imageCount} images`);
+    }
+  } catch (e) {
+    console.error("Error posting tweet:", e);
+  }
+};
+
+// Original single image tweet function (kept for reference)
 const tweet = async () => {
   const availableURIs = getAvailableURIs();
   const randomIndex = Math.floor(Math.random() * availableURIs.length);
@@ -230,93 +310,6 @@ const tweet = async () => {
       console.error(e);
     }
   });
-};
-
-// Enhanced multi-image posting function with cooldown tracking
-const tweetMultiple = async () => {
-  try {
-    // Determine how many images to post (with cooldown logic)
-    const imageCount = getImageCount();
-    console.log(`Posting ${imageCount} image(s)`);
-
-    // Special case: if 1 image selected, post twice (2 separate tweets)
-    if (imageCount === 1) {
-      console.log("1 image selected - will create 2 separate tweets");
-
-      // First tweet
-      await postSingleTweet();
-
-      // Small delay between tweets (optional, to avoid rate limits)
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second delay
-
-      // Second tweet
-      await postSingleTweet();
-
-      console.log("Successfully posted 2 separate single-image tweets");
-
-      // Update posting history (count as 2 posts of 1 image each)
-      updatePostingHistory(1);
-      updatePostingHistory(1);
-
-      return;
-    }
-
-    // Original logic for 2-4 images (single tweet with multiple images)
-    const selectedImages = getRandomImages(imageCount);
-    const downloadedImages = await downloadImages(selectedImages);
-
-    const mediaIds = [];
-    for (const image of downloadedImages) {
-      const mediaId = await twitterClient.v1.uploadMedia(image.filepath, {
-        mimeType: "image/jpeg",
-      });
-      mediaIds.push(mediaId);
-    }
-
-    await twitterClient.v2.tweet({
-      text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop",
-      media: {
-        media_ids: mediaIds,
-        tagged_user_ids: ["967000437797761024"],
-      },
-    });
-
-    const recordEntries =
-      downloadedImages.map((img) => img.uri).join("\n") + "\n";
-    fs.appendFileSync(POST_RECORD_FILE, recordEntries);
-
-    downloadedImages.forEach((img) => postedURIs.add(img.uri));
-    updatePostingHistory(imageCount);
-
-    console.log(`Successfully posted ${imageCount} image(s)`);
-  } catch (e) {
-    console.error("Error posting tweet:", e);
-  }
-};
-
-// Helper function to post a single tweet
-const postSingleTweet = async () => {
-  const selectedImages = getRandomImages(1);
-  const downloadedImages = await downloadImages(selectedImages);
-
-  const mediaId = await twitterClient.v1.uploadMedia(
-    downloadedImages[0].filepath,
-    {
-      mimeType: "image/jpeg",
-    },
-  );
-
-  await twitterClient.v2.tweet({
-    text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop",
-    media: {
-      media_ids: [mediaId],
-      tagged_user_ids: ["967000437797761024"],
-    },
-  });
-
-  // Record posted URI
-  fs.appendFileSync(POST_RECORD_FILE, `${downloadedImages[0].uri}\n`);
-  postedURIs.add(downloadedImages[0].uri);
 };
 
 // Instagram posting function (unchanged)
