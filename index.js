@@ -104,7 +104,7 @@ const getImageCount = () => {
     // During cooldown, only allow modes 1-3
     const random = Math.random() * 100;
     if (random < 75) {
-      return 1; // 75% → 3 separate single-image tweets
+      return 1; // 75% → 2 separate single-image tweets
     } else if (random < 90) {
       return 2; // 15% → 2 separate 2-image tweets
     } else {
@@ -114,7 +114,7 @@ const getImageCount = () => {
     // Normal probability distribution
     const random = Math.random() * 100;
     if (random < 65) {
-      return 1; // 65% → 3 separate single-image tweets
+      return 1; // 65% → 2 separate single-image tweets
     } else if (random < 85) {
       return 2; // 20% → 2 separate 2-image tweets
     } else if (random < 95) {
@@ -231,7 +231,7 @@ const postSingleTweet = async () => {
 
 // Enhanced multi-image posting function with cooldown tracking
 //
-// Mode 1 (65%): 3 separate single-image tweets
+// Mode 1 (65%): 2 separate single-image tweets
 // Mode 2 (20%): 2 separate tweets with 2 images each
 // Mode 3 (10%): 1 tweet with 3 images
 // Mode 4 ( 5%): 1 tweet with 4 images
@@ -240,18 +240,15 @@ const tweetMultiple = async () => {
     const imageCount = getImageCount();
 
     if (imageCount === 1) {
-      console.log("Mode 1 - posting 3 separate single-image tweets");
+      console.log("Mode 1 - posting 2 separate single-image tweets");
 
-      await postSingleTweet();
-      await new Promise((resolve) => setTimeout(resolve, 2000));
       await postSingleTweet();
       await new Promise((resolve) => setTimeout(resolve, 2000));
       await postSingleTweet();
 
       updatePostingHistory(1);
       updatePostingHistory(1);
-      updatePostingHistory(1);
-      console.log("Successfully posted 3 single-image tweets");
+      console.log("Successfully posted 2 single-image tweets");
     } else if (imageCount === 2) {
       console.log("Mode 2 - posting 2 separate 2-image tweets");
 
@@ -372,10 +369,10 @@ loadPostedURIs();
 // checkCooldownStatus();
 // tweetMultiple();
 
-// Post once every 6 hours
-const cronPost = new CronJob("0 */6 * * *", async () => {
+// Post once every 8 hours
+const cronPost = new CronJob("0 */8 * * *", async () => {
   tweetMultiple();
   // postToInsta();
 });
 cronPost.start();
-console.log("Bot started! Posting every 6 hours.");
+console.log("Bot started! Posting every 8 hours.");
