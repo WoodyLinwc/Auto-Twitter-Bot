@@ -10,6 +10,9 @@ const { download } = require("./utilities");
 const { IgApiClient } = require("instagram-private-api");
 const { get } = require("request-promise");
 
+// for Bluesky
+const { postToBluesky } = require("./blueskyClient.js");
+
 // Track posting history for 4-image cooldown
 const COOLDOWN_FILE = "posting_history.json";
 const COOLDOWN_POSTS = 5; // Number of posts after 4-image post where 4 images are blocked
@@ -217,6 +220,16 @@ const postMultiImageTweet = async (count) => {
       tagged_user_ids: ["967000437797761024"],
     },
   });
+
+  // Cross-post the same images to Bluesky, same cadence as Twitter
+  try {
+    await postToBluesky(
+      "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop",
+      downloadedImages.map((img) => img.filepath),
+    );
+  } catch (e) {
+    console.error("Error posting to Bluesky:", e);
+  }
 
   const recordEntries =
     downloadedImages.map((img) => img.uri).join("\n") + "\n";
