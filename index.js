@@ -77,11 +77,8 @@ function getAvailableURIs() {
   if (available.length === 0) {
     console.log("All images have been posted! Resetting...");
     postedURIs.clear();
-    // Add a separator to the post record
-    fs.appendFileSync(
-      POST_RECORD_FILE,
-      "\n----------------CYCLE COMPLETE----------------\n",
-    );
+    // Wipe the post record so the next cycle starts completely fresh
+    fs.writeFileSync(POST_RECORD_FILE, "");
     return allURIs;
   }
 
