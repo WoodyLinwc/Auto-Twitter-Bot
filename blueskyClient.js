@@ -1,17 +1,19 @@
 const fs = require("fs");
 
 let _agent = null;
+let _RichText = null;
 let isLoggedIn = false;
 
 // @atproto/api is published as ESM-only, so it must be loaded with a
 // dynamic import() even from this CommonJS file. We cache the agent
-// after the first load.
+// and RichText class after the first load.
 async function getAgent() {
   if (!_agent) {
-    const { BskyAgent } = await import("@atproto/api");
+    const { BskyAgent, RichText } = await import("@atproto/api");
     _agent = new BskyAgent({
       service: "https://bsky.social",
     });
+    _RichText = RichText;
   }
   return _agent;
 }
@@ -47,7 +49,16 @@ async function postToBluesky(text, imagePaths = []) {
     });
   }
 
-  const postRecord = { text };
+  // Detect #hashtags, @mentions, and links in the text and turn them
+  // into clickable facets. detectFacets() takes the agent so it can
+  // resolve @mentions to DIDs; hashtags/links don't need network calls.
+  const rt = new _RichText({ text });
+  await rt.detectFacets(agent);
+
+  const postRecord = {
+    text: rt.text,
+    facets: rt.facets,
+  };
   if (images.length > 0) {
     postRecord.embed = {
       $type: "app.bsky.embed.images",
