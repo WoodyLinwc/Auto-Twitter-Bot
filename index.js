@@ -13,6 +13,9 @@ const { get } = require("request-promise");
 // for Bluesky
 const { postToBluesky } = require("./blueskyClient.js");
 
+// for Mastodon
+const { postToMastodon } = require("./mastodonClient.js");
+
 // Track posting history for 4-image cooldown
 const COOLDOWN_FILE = "posting_history.json";
 const COOLDOWN_POSTS = 5; // Number of posts after 4-image post where 4 images are blocked
@@ -226,6 +229,16 @@ const postMultiImageTweet = async (count) => {
     );
   } catch (e) {
     console.error("Error posting to Bluesky:", e);
+  }
+
+  // Cross-post the same images to Mastodon, same cadence as Twitter
+  try {
+    await postToMastodon(
+      "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop",
+      downloadedImages.map((img) => img.filepath),
+    );
+  } catch (e) {
+    console.error("Error posting to Mastodon:", e);
   }
 
   const recordEntries =
