@@ -16,6 +16,22 @@ const { postToBluesky } = require("./blueskyClient.js");
 // for Mastodon
 const { postToMastodon } = require("./mastodonClient.js");
 
+// Shared caption text and cross-platform promo links.
+// X stays link-free (X charges $0.20/post for any post containing a URL,
+// vs $0.015 for a plain post — far too expensive just for cross-promotion).
+// Bluesky and Mastodon are free to post links on, so each one promotes
+// the other two platforms.
+const HASHTAGS =
+  "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop";
+const X_PROFILE_URL = "https://twitter.com/GIDLE_BOT_DAILY";
+const BLUESKY_PROFILE_URL =
+  "https://bsky.app/profile/gidle-bot-daily.bsky.social";
+const MASTODON_PROFILE_URL = "https://mastodon.social/@GIDLE_BOT_DAILY";
+
+const TWITTER_TEXT = HASHTAGS;
+const BLUESKY_TEXT = `${HASHTAGS}\nFollow on X: ${X_PROFILE_URL}\nFollow on Mastodon: ${MASTODON_PROFILE_URL}`;
+const MASTODON_TEXT = `${HASHTAGS}\nFollow on X: ${X_PROFILE_URL}\nFollow on Bluesky: ${BLUESKY_PROFILE_URL}`;
+
 // Track posting history for 4-image cooldown
 const COOLDOWN_FILE = "posting_history.json";
 const COOLDOWN_POSTS = 5; // Number of posts after 4-image post where 4 images are blocked
@@ -214,7 +230,7 @@ const postMultiImageTweet = async (count) => {
   }
 
   await twitterClient.v2.tweet({
-    text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop",
+    text: TWITTER_TEXT,
     media: {
       media_ids: mediaIds,
       tagged_user_ids: ["967000437797761024"],
@@ -224,7 +240,7 @@ const postMultiImageTweet = async (count) => {
   // Cross-post the same images to Bluesky, same cadence as Twitter
   try {
     await postToBluesky(
-      "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop",
+      BLUESKY_TEXT,
       downloadedImages.map((img) => img.filepath),
     );
   } catch (e) {
@@ -234,7 +250,7 @@ const postMultiImageTweet = async (count) => {
   // Cross-post the same images to Mastodon, same cadence as Twitter
   try {
     await postToMastodon(
-      "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop",
+      MASTODON_TEXT,
       downloadedImages.map((img) => img.filepath),
     );
   } catch (e) {
