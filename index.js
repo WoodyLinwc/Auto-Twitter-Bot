@@ -416,6 +416,10 @@ const cronPost = new CronJob("0 */8 * * *", async () => {
 cronPost.start();
 console.log("Bot started! Posting every 8 hours.");
 
-// Birthday special posts — logic lives in birthdayPost.js
-const { startBirthdayChecker } = require("./birthdayPost.js");
+// Birthday & anniversary special posts — logic lives in birthdayPost.js
+const {
+  startBirthdayChecker,
+  startAnniversaryChecker,
+} = require("./birthdayPost.js");
 startBirthdayChecker();
+startAnniversaryChecker();

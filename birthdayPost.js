@@ -81,4 +81,72 @@ function startBirthdayChecker() {
   console.log("Birthday checker started! Runs daily at KST 00:00.");
 }
 
-module.exports = { startBirthdayChecker, checkAndPostBirthday };
+// ─── Debut Anniversary ────────────────────────────────────────────────────────
+// (G)I-DLE debuted on May 2, 2018.
+// Fires at KST 00:00 on May 2 every year (= UTC 15:00 on May 1).
+
+const DEBUT_YEAR = 2018;
+const DEBUT_MONTH = 5;
+const DEBUT_DAY = 2;
+
+async function checkAndPostAnniversary() {
+  const now = new Date();
+  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const kstMonth = kst.getUTCMonth() + 1;
+  const kstDay = kst.getUTCDate();
+  const kstYear = kst.getUTCFullYear();
+
+  if (kstMonth !== DEBUT_MONTH || kstDay !== DEBUT_DAY) return;
+
+  const years = kstYear - DEBUT_YEAR;
+  console.log(`🎊 Today is (G)I-DLE's ${years}th debut anniversary!`);
+
+  const base =
+    `🎊✨ (여자)아이들 데뷔 ${years}주년을 축하해요!! ✨🎊\n` +
+    `${years} years of (G)I-DLE and we're so PROUD (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧💕\n` +
+    `出道${years}周年快乐！感谢你们这${years}年带给我们的一切～ (っ˘ω˘ς )\n` +
+    `ครบรอบ ${years} ปีเดบิวต์นะคะ!! ٩(◕‿◕)۶\n` +
+    `네버랜드와 함께한 ${years}년 영원히 사랑해 ♡( ◡‿◡ )♡\n` +
+    `#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop`;
+
+  // Twitter — text only, no URL
+  try {
+    await twitterClient.v2.tweet({ text: base });
+    console.log("Anniversary tweet posted to Twitter");
+  } catch (e) {
+    console.error("Error posting anniversary tweet to Twitter:", e);
+  }
+
+  // Bluesky — include cross-platform links
+  try {
+    await postToBluesky(
+      `${base}\nFollow on X: ${X_PROFILE_URL}\nFollow on Mastodon: ${MASTODON_PROFILE_URL}`,
+    );
+    console.log("Anniversary post sent to Bluesky");
+  } catch (e) {
+    console.error("Error posting anniversary post to Bluesky:", e);
+  }
+
+  // Mastodon — include cross-platform links
+  try {
+    await postToMastodon(
+      `${base}\nFollow on X: ${X_PROFILE_URL}\nFollow on Bluesky: ${BLUESKY_PROFILE_URL}`,
+    );
+    console.log("Anniversary post sent to Mastodon");
+  } catch (e) {
+    console.error("Error posting anniversary post to Mastodon:", e);
+  }
+}
+
+function startAnniversaryChecker() {
+  const job = new CronJob("0 15 * * *", checkAndPostAnniversary);
+  job.start();
+  console.log("Anniversary checker started! Runs daily at KST 00:00.");
+}
+
+module.exports = {
+  startBirthdayChecker,
+  startAnniversaryChecker,
+  checkAndPostBirthday,
+  checkAndPostAnniversary,
+};
