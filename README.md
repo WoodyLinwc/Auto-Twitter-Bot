@@ -100,25 +100,23 @@ IG_PASSWORD="ZZZZZZ"
 
 - I used the free Twitter API v2, so I don't have the access of retweet a post, like a post, search a post etc. As of 2026, X has moved to pay-per-use pricing entirely, so even posting now has a small per-request cost (see above).
 
-- ~~I used igmur as my storage to keep all my images online.~~
-
 - I directly used one Github repository to store my images.
-
-- ~~I was also trying to implement a **Instagram Bot** that will do the same thing. However, I could only do it locally, not on the remote server :(
-  There were some errors using the `sharp` module in ubuntu.~~ - ~~The Instagram API I'm using can't handle png images. This is the reason I used `sharp`. You surely can find a better solution. Tell me if you find one🌚~~
-- I installed jimp instead, and it worked!
 
 - Due to the small capacity of the remote server, I cannot a build system like Docker to ensure consistency between environments.
 
-- I used the `postRecord.txt` file to keep track of the images that have been tweeted. I created a bash script that make my life easier. Don't forget to make it executable, `chmod u+x twitter.sh`.
+- I used the `postRecord.txt` file to keep track of the images that have been posted. I created a bash script that makes my life easier. Don't forget to make it executable, `chmod u+x twitter.sh`.
 
-- I used a in-memory set and `posting_history.json` to ensure all post images are unique. Once the entire image pool has been posted once, the bot wipes both the in-memory set and `postRecord.txt` and starts a fresh cycle automatically.
+- I used a in-memory set and `posting_history.json` to ensure all posted images are unique. Once the entire image pool has been posted once, the bot wipes both the in-memory set and `postRecord.txt` and starts a fresh cycle automatically.
 
-- The bot could post multiple images at once based on a pre-set probability.
+- The bot posts multiple images at once based on a pre-set probability distribution across 4 modes (1–4 images per post).
 
 - Bluesky requires a `RichText` facet to make `#hashtags` clickable — just posting plain text with a `#` in it renders as static text, unlike Twitter and Mastodon which auto-link hashtags server-side.
 
 - Each platform posting call (`postToBluesky`, `postToMastodon`) is wrapped in its own `try/catch`, so if one platform's API has a hiccup, it doesn't take down the whole bot or the other platforms.
+
+- Special occasion posts (member birthdays and group debut anniversary) are handled in `birthdayPost.js`, which fires daily at KST 00:00. Each event posts a multilingual message with up to 3 randomly selected images from `special_uris.json`. If no images are available for a given occasion, it falls back to text-only automatically.
+
+- X posts for birthdays/anniversary are text-only to avoid the $0.20/post URL surcharge — cross-platform links are included in Bluesky and Mastodon posts only.
 
 ```
 #!/bin/sh
@@ -130,6 +128,8 @@ pm2 restart index
 cd img
 rm -f ./*
 ```
+
+- To add new images to the regular pool, update `uris.json` and run `twitter.sh`. To add or update special occasion images (birthdays/anniversary), update `special_uris.json` in the same way — both files are tracked in git so a single `git push` + `twitter.sh` keeps the server in sync.
 
 ## License
 
