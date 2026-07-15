@@ -32,9 +32,8 @@ const TWITTER_TEXT = HASHTAGS;
 const BLUESKY_TEXT = `${HASHTAGS}\nFollow on X: ${X_PROFILE_URL}\nFollow on Mastodon: ${MASTODON_PROFILE_URL}`;
 const MASTODON_TEXT = `${HASHTAGS}\nFollow on X: ${X_PROFILE_URL}\nFollow on Bluesky: ${BLUESKY_PROFILE_URL}`;
 
-// Track posting history for 4-image cooldown
-const COOLDOWN_FILE = "posting_history.json";
-const COOLDOWN_POSTS = 5; // Number of posts after 4-image post where 4 images are blocked
+// Track posting history (bookkeeping only — no cooldown)
+const HISTORY_FILE = "posting_history.json";
 const POST_RECORD_FILE = "postRecord.txt";
 
 // In-memory set of posted URIs for fast lookups
@@ -43,8 +42,8 @@ let postedURIs = new Set();
 // Load posting history
 function loadPostingHistory() {
   try {
-    if (fs.existsSync(COOLDOWN_FILE)) {
-      const data = fs.readFileSync(COOLDOWN_FILE, "utf8");
+    if (fs.existsSync(HISTORY_FILE)) {
+      const data = fs.readFileSync(HISTORY_FILE, "utf8");
       return JSON.parse(data);
     }
   } catch (error) {
@@ -52,7 +51,6 @@ function loadPostingHistory() {
   }
   return {
     lastFourImagePost: null,
-    postsSinceFourImages: 0,
     totalPosts: 0,
   };
 }
@@ -60,7 +58,7 @@ function loadPostingHistory() {
 // Save posting history
 function savePostingHistory(history) {
   try {
-    fs.writeFileSync(COOLDOWN_FILE, JSON.stringify(history, null, 2));
+    fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2));
   } catch (error) {
     console.error("Error saving posting history:", error);
   }
@@ -105,42 +103,19 @@ function getAvailableURIs() {
   return available;
 }
 
-// Enhanced function to determine number of images with cooldown logic
+// Determine number of images for this run
+//
+// 70% → 2 separate 2-image tweets
+// 20% → 1 tweet with 3 images
+// 10% → 1 tweet with 4 images
 const getImageCount = () => {
-  const history = loadPostingHistory();
-
-  // Check if we're in cooldown period (next 5 posts after a 4-image post)
-  const inCooldown =
-    history.lastFourImagePost !== null &&
-    history.postsSinceFourImages < COOLDOWN_POSTS;
-
-  if (inCooldown) {
-    console.log(
-      `In cooldown period: ${
-        history.postsSinceFourImages + 1
-      }/${COOLDOWN_POSTS} posts since last 4-image post`,
-    );
-    // During cooldown, only allow modes 1-3
-    const random = Math.random() * 100;
-    if (random < 75) {
-      return 1; // 75% → 2 separate single-image tweets
-    } else if (random < 90) {
-      return 2; // 15% → 2 separate 2-image tweets
-    } else {
-      return 3; // 10% → 1 tweet with 3 images
-    }
+  const random = Math.random() * 100;
+  if (random < 70) {
+    return 2;
+  } else if (random < 90) {
+    return 3;
   } else {
-    // Normal probability distribution
-    const random = Math.random() * 100;
-    if (random < 65) {
-      return 1; // 65% → 2 separate single-image tweets
-    } else if (random < 85) {
-      return 2; // 20% → 2 separate 2-image tweets
-    } else if (random < 95) {
-      return 3; // 10% → 1 tweet with 3 images
-    } else {
-      return 4; //  5% → 1 tweet with 4 images
-    }
+    return 4;
   }
 };
 
@@ -149,19 +124,7 @@ function updatePostingHistory(imageCount) {
   const history = loadPostingHistory();
 
   if (imageCount === 4) {
-    // Reset cooldown when posting 4 images
     history.lastFourImagePost = new Date().toISOString();
-    history.postsSinceFourImages = 0;
-    console.log("Posted 4 images - starting cooldown period");
-  } else if (history.lastFourImagePost !== null) {
-    // Increment posts since last 4-image post
-    history.postsSinceFourImages++;
-
-    // Check if cooldown period is over
-    if (history.postsSinceFourImages >= COOLDOWN_POSTS) {
-      console.log("Cooldown period completed - 4 images allowed again");
-      // Keep the history but mark cooldown as complete
-    }
   }
 
   history.totalPosts++;
@@ -263,32 +226,16 @@ const postMultiImageTweet = async (count) => {
   downloadedImages.forEach((img) => postedURIs.add(img.uri));
 };
 
-// Helper: post a single tweet with 1 image
-const postSingleTweet = async () => {
-  await postMultiImageTweet(1);
-};
-
-// Enhanced multi-image posting function with cooldown tracking
+// Multi-image posting function
 //
-// Mode 1 (65%): 2 separate single-image tweets
-// Mode 2 (20%): 2 separate tweets with 2 images each
-// Mode 3 (10%): 1 tweet with 3 images
-// Mode 4 ( 5%): 1 tweet with 4 images
+// Mode 2 (70%): 2 separate tweets with 2 images each
+// Mode 3 (20%): 1 tweet with 3 images
+// Mode 4 (10%): 1 tweet with 4 images
 const tweetMultiple = async () => {
   try {
     const imageCount = getImageCount();
 
-    if (imageCount === 1) {
-      console.log("Mode 1 - posting 2 separate single-image tweets");
-
-      await postSingleTweet();
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      await postSingleTweet();
-
-      updatePostingHistory(1);
-      updatePostingHistory(1);
-      console.log("Successfully posted 2 single-image tweets");
-    } else if (imageCount === 2) {
+    if (imageCount === 2) {
       console.log("Mode 2 - posting 2 separate 2-image tweets");
 
       await postMultiImageTweet(2);
@@ -311,41 +258,6 @@ const tweetMultiple = async () => {
   } catch (e) {
     console.error("Error posting tweet:", e);
   }
-};
-
-// Original single image tweet function (kept for reference)
-const tweet = async () => {
-  const availableURIs = getAvailableURIs();
-  const randomIndex = Math.floor(Math.random() * availableURIs.length);
-  const uri = availableURIs[randomIndex];
-
-  const directory = "./img";
-  const filename = uri.substring(uri.lastIndexOf("/") + 1);
-  const filepath = `${directory}/${filename}`;
-
-  download(uri, filepath, async function (err) {
-    try {
-      const mediaId = await twitterClient.v1.uploadMedia(filepath, {
-        mimeType: "image/jpeg",
-      });
-
-      await twitterClient.v2.tweet({
-        text: "#gidle #idle #neverland #여자아이들 #아이들 #네버랜드 #女娃 #kpop",
-        media: {
-          media_ids: [mediaId],
-          tagged_user_ids: ["967000437797761024"],
-        },
-      });
-
-      fs.appendFileSync(POST_RECORD_FILE, `${uri}\n`);
-      postedURIs.add(uri); // Update in-memory set
-
-      // Update history for single image post
-      updatePostingHistory(1);
-    } catch (e) {
-      console.error(e);
-    }
-  });
 };
 
 // Instagram posting function (unchanged)
@@ -372,32 +284,13 @@ const postToInsta = async () => {
   });
 };
 
-// Function to check current cooldown status (utility function)
-const checkCooldownStatus = () => {
+// Print posting stats (utility function)
+const printStats = () => {
   const history = loadPostingHistory();
-
-  if (history.lastFourImagePost === null) {
-    console.log("No 4-image posts recorded yet");
-    return;
-  }
-
-  const inCooldown = history.postsSinceFourImages < COOLDOWN_POSTS;
-
-  if (inCooldown) {
-    console.log(
-      `Currently in cooldown: ${history.postsSinceFourImages}/${COOLDOWN_POSTS} posts since last 4-image post`,
-    );
-    console.log(
-      `${
-        COOLDOWN_POSTS - history.postsSinceFourImages
-      } more posts until 4 images allowed again`,
-    );
-  } else {
-    console.log("Not in cooldown - 4 images allowed");
-  }
-
   console.log(`Total posts: ${history.totalPosts}`);
-  console.log(`Last 4-image post: ${history.lastFourImagePost}`);
+  console.log(
+    `Last 4-image post: ${history.lastFourImagePost ?? "none recorded yet"}`,
+  );
 };
 
 // Load posted URIs on startup
@@ -405,7 +298,7 @@ console.log("Initializing bot...");
 loadPostedURIs();
 
 // Uncomment to test functions
-// checkCooldownStatus();
+// printStats();
 // tweetMultiple();
 
 // Post once every 8 hours
