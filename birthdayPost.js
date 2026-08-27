@@ -45,6 +45,22 @@ function pickRandomMultiple(pool, count = 3) {
   return shuffled.slice(0, count);
 }
 
+// Download a single special image URI to ./img/ and return its local filepath.
+// Returns null (instead of throwing) if the download fails, so one bad URL
+// doesn't take down the whole birthday/anniversary post.
+async function downloadSpecialImage(uri) {
+  const filepath = `./img/${uri.substring(uri.lastIndexOf("/") + 1)}`;
+  try {
+    await new Promise((resolve, reject) => {
+      download(uri, filepath, (err) => (err ? reject(err) : resolve()));
+    });
+    return filepath;
+  } catch (e) {
+    console.error(`Failed to download special image ${uri}:`, e);
+    return null;
+  }
+}
+
 // Download multiple image URIs to ./img/ and return their local filepaths.
 // Skips any that fail so one bad URL doesn't block the rest.
 async function downloadSpecialImages(uris) {
@@ -76,9 +92,15 @@ async function checkAndPostBirthday() {
   const age = kstYear - member.born;
   console.log(`🎂 Today is ${member.name}'s birthday! Turning ${age}.`);
 
-  // Try to get up to 3 special birthday images for this member
-  const uris = pickRandomMultiple(getSpecialURIs(member.name), 3);
-  const filepaths = await downloadSpecialImages(uris);
+  // Try to get up to 3 special birthday images for this member.
+  // Wrapped in try/catch so an image problem never blocks the actual post.
+  let filepaths = [];
+  try {
+    const uris = pickRandomMultiple(getSpecialURIs(member.name), 3);
+    filepaths = await downloadSpecialImages(uris);
+  } catch (e) {
+    console.error("Error preparing special birthday images:", e);
+  }
 
   const base =
     `🎂✨ 생일 축하해요 ${member.name}!! ✨🎂\n` +
@@ -147,9 +169,15 @@ async function checkAndPostAnniversary() {
   const years = kstYear - DEBUT_YEAR;
   console.log(`🎊 Today is (G)I-DLE's ${years}th debut anniversary!`);
 
-  // Try to get up to 3 special anniversary images
-  const uris = pickRandomMultiple(getSpecialURIs("anniversary"), 3);
-  const filepaths = await downloadSpecialImages(uris);
+  // Try to get up to 3 special anniversary images.
+  // Wrapped in try/catch so an image problem never blocks the actual post.
+  let filepaths = [];
+  try {
+    const uris = pickRandomMultiple(getSpecialURIs("anniversary"), 3);
+    filepaths = await downloadSpecialImages(uris);
+  } catch (e) {
+    console.error("Error preparing special anniversary images:", e);
+  }
 
   const base =
     `🎊✨ (여자)아이들 데뷔 ${years}주년을 축하해요!! ✨🎊\n` +
